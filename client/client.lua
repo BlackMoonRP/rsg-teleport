@@ -6,7 +6,7 @@ Citizen.CreateThread(function()
         exports['qr-core']:createPrompt(v.promptname, v.coords, QRCore.Shared.Keybinds['J'], v.name, {
             type = 'client',
             event = 'rsg-teleport:client:useteleport',
-            args = { v.destination },
+            args = { v.destination, v.restrict, v.access },
         })
     end
 end)
@@ -26,10 +26,27 @@ end)
 
 -- do teleport
 RegisterNetEvent('rsg-teleport:client:useteleport')
-AddEventHandler('rsg-teleport:client:useteleport', function(destination)
-    DoScreenFadeOut(500)
-    Wait(1000)
-    Citizen.InvokeNative(0x203BEFFDBE12E96A, PlayerPedId(), destination)
-    Wait(1500)
-    DoScreenFadeIn(1800)
+AddEventHandler('rsg-teleport:client:useteleport', function(destination, restrict, access)
+    local Player = QRCore.Functions.GetPlayerData()
+    local job = Player.job.name
+    local gang = Player.gang.name
+    print(restrict)
+    print(access)
+    if restrict == true then
+        if job == access or gang == access then
+            DoScreenFadeOut(500)
+            Wait(1000)
+            Citizen.InvokeNative(0x203BEFFDBE12E96A, PlayerPedId(), destination)
+            Wait(1500)
+            DoScreenFadeIn(1800)
+        else
+            QRCore.Functions.Notify('you are not authorised!', 'error')
+        end
+    else
+        DoScreenFadeOut(500)
+        Wait(1000)
+        Citizen.InvokeNative(0x203BEFFDBE12E96A, PlayerPedId(), destination)
+        Wait(1500)
+        DoScreenFadeIn(1800)
+    end
 end)
